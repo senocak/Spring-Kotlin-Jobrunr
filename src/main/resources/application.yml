@@ -1,0 +1,38 @@
+server:
+  port: ${SERVER_PORT:8082}
+spring:
+  application:
+    name: Spring Kotlin Jobrunr
+  profiles:
+    active: ${PROFILE:local}
+  datasource:
+    url: jdbc:postgresql://${POSTGRESQL_HOST:localhost}:${POSTGRESQL_PORT:5432}/${POSTGRESQL_DB:jobrunr}?currentSchema=${spring.flyway.default-schema}
+    username: ${POSTGRESQL_USER:postgres}
+    password: ${POSTGRESQL_PASSWORD:senocak}
+    hikari:
+      minimum-idle: 1 # The minimum connection pool size is 1
+      maximum-pool-size: 40 # it can grow to at most 40 connections
+      max-lifetime: 900_000 # to retire pooled connections after 10 minutes
+      transaction-isolation: TRANSACTION_READ_COMMITTED # to optimize the number of gap locks held by db when traversing the clustered index for bulk updates or deletes.
+      pool-name: DynamicPropertyHikariCP
+  flyway:
+    enabled: true
+    failOnMissingLocations: true
+    locations: classpath:migration
+    default-schema: ${POSTGRESQL_SCHEMA:public}
+    table: "flyway_migration_history"
+    sqlMigrationPrefix: "V"
+    sqlMigrationSeparator: "__"
+org:
+  jobrunr:
+    dashboard:
+      port: 8898
+      enabled: true
+    background-job-server:
+      name: LoremIpsum
+      enabled: true
+      worker-count: 4
+      scheduled-jobs-request-size: 1
+      orphaned-jobs-request-size: 2
+      succeeded-jobs-request-size: 3
+      interrupt-jobs-await-duration-on-stop: PT20S
